@@ -1,0 +1,56 @@
+<?php
+/**
+ * El Punto Acapulco — Generador de hashes bcrypt
+ * Ejecutar UNA SOLA VEZ tras importar database.sql:
+ *   php generate_hashes.php
+ *
+ * Propietario: Peter Saloz
+ */
+
+declare(strict_types=1);
+require_once __DIR__ . '/db.php';
+
+// ─── Contraseñas del personal ───────────────────────────────
+$staff = [
+    ['usuario' => 'peter.saloz',    'plain' => 'peter123'],
+    ['usuario' => 'edson.luna',     'plain' => 'edson123'],
+    ['usuario' => 'viriada.santos', 'plain' => 'viriada123'],
+    ['usuario' => 'mario.garcia',   'plain' => 'mario123'],
+    ['usuario' => 'dana.martinez',  'plain' => 'dana123'],
+];
+
+// ─── Contraseñas de clientes ─────────────────────────────────
+$clientes = [
+    ['codigo' => '001', 'plain' => 'carlos123'],
+    ['codigo' => '002', 'plain' => 'sofia123'],
+    ['codigo' => '003', 'plain' => 'luis123'],
+    ['codigo' => '004', 'plain' => 'andrea123'],
+    ['codigo' => '005', 'plain' => 'roberto123'],
+    ['codigo' => '006', 'plain' => 'val123'],
+    ['codigo' => '007', 'plain' => 'diego123'],
+    ['codigo' => '008', 'plain' => 'patri123'],
+    ['codigo' => '009', 'plain' => 'miguel123'],
+    ['codigo' => '010', 'plain' => 'fer123'],
+];
+
+$db = DB::getInstance();
+
+echo "El Punto Acapulco — Generando hashes bcrypt (cost=12)...\n\n";
+
+// Actualizar staff
+echo "=== PERSONAL ===\n";
+foreach ($staff as $u) {
+    $hash = hashPassword($u['plain']);
+    $rows = $db->update('usuarios', ['password_hash' => $hash], ['usuario' => $u['usuario']]);
+    echo ($rows > 0 ? "✓" : "✗") . " {$u['usuario']}\n";
+}
+
+// Actualizar clientes
+echo "\n=== CLIENTES ===\n";
+foreach ($clientes as $c) {
+    $hash = hashPassword($c['plain']);
+    $rows = $db->update('clientes', ['password_hash' => $hash], ['codigo' => $c['codigo']]);
+    echo ($rows > 0 ? "✓" : "✗") . " Cliente {$c['codigo']}\n";
+}
+
+echo "\n¡Listo! Todos los hashes actualizados en la base de datos.\n";
